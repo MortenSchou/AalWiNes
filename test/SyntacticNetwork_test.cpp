@@ -169,10 +169,10 @@ Network construct_synthetic_network(int nesting = 1){
 
 BOOST_AUTO_TEST_CASE(NetworkConstruction) {
     Network synthetic_network = construct_synthetic_network(1);
-    Network synthetic_network2 = construct_synthetic_network();
-    synthetic_network.manipulate_network(0,2,synthetic_network2, 0,synthetic_network2.size() - 2);
+    //Network synthetic_network2 = construct_synthetic_network();
+    //synthetic_network.manipulate_network(0,2,synthetic_network2, 0,synthetic_network2.size() - 2);
 
-    synthetic_network.print_dot(std::cout);
+    //synthetic_network.print_dot(std::cout);
 
     BOOST_CHECK_EQUAL(true, true);
 }
