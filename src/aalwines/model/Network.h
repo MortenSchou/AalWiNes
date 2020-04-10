@@ -47,15 +47,14 @@ public:
     Network& operator=(Network&&) = default;
 
     Router *get_router(size_t id);
+    const std::vector<std::unique_ptr<Router>>& get_all_routers() const { return _routers; }
 
-    //Not too good, should be const
-    std::vector<std::unique_ptr<Router>>& get_all_routers() { return _routers; }
-    void manipulate_network(int start_router_index, int end_router_index, Network& nested_synthetic_network,
-                            int start_router_index2, int end_router_index2);
+    void inject_network(Interface* link, Network&& nested_network, Interface* nested_ingoing,
+            Interface* nested_outgoing, RoutingTable::label_t pre_label, RoutingTable::label_t post_label);
+    void concat_network(Interface *link, Network &&nested_network, Interface *nested_ingoing, RoutingTable::label_t post_label);
     size_t size() const { return _routers.size(); }
-
-    //Copy Constructor missing
     const routermap_t& get_mapping() const { return _mapping; }
+    int get_max_label() const { return _max_label; }
 
     std::unordered_set<Query::label_t> interfaces(filter_t& filter);
     std::unordered_set<Query::label_t> get_labels(uint64_t label, uint64_t mask, Query::type_t type, bool exact = false);
@@ -66,14 +65,20 @@ public:
     bool is_service_label(const Query::label_t&) const;
     void write_prex_topology(std::ostream& s);
     void write_prex_routing(std::ostream& s);
+
+    static Network construct_synthetic_network(size_t nesting = 1);
+    static Network make_network(const std::vector<std::string>& names, const std::vector<std::vector<std::string>>& links);
+    static Network make_network(const std::vector<std::pair<std::string,Coordinate>>& names, const std::vector<std::vector<std::string>>& links);
 private:
     // NO TOUCHEE AFTER INIT!
     routermap_t _mapping;
-    std::vector<std::unique_ptr<Router>> _routers;    
+    std::vector<std::unique_ptr<Router>> _routers;
     size_t _total_labels = 0;
     std::vector<const Interface*> _all_interfaces;
     std::unordered_set<Query::label_t> _label_cache;
     std::unordered_set<Query::label_t> _non_service_label;
+    uint64_t _max_label = 0;
+    void move_network(Network&& nested_network);
 };
 }
 

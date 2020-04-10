@@ -33,6 +33,7 @@
 #include <memory>
 
 #include <ptrie/ptrie_map.h>
+#include "aalwines/utils/coordinate.h"
 
 #include "RoutingTable.h"
 
@@ -64,10 +65,18 @@ public:
     size_t id() const {
         return _id;
     }
+
+    void update_id(uint64_t id_value) {
+        _id = id_value;
+    }
+
     size_t global_id() const {
         return _global_id;
     }
-    
+    void update_global_id(size_t global_id) {
+        _global_id = global_id;
+    }
+
     void remove_pairing(Interface* interface);
     void make_pairing(Interface* interface);
     void make_pairing(std::vector<const Interface*>& all_interfaces, std::function<bool(const Interface*, const Interface*)> matcher);
@@ -83,35 +92,49 @@ private:
 
 class Router {
 public:
-    Router(size_t id, bool is_null = false);
+    explicit Router(size_t id, bool is_null = false);
+    Router(size_t id, Coordinate coordinate);
     Router(const Router& orig) = default;
     virtual ~Router() = default;
 
-    size_t index() const {
+    [[nodiscard]] size_t index() const {
         return _index;
     }
+    void update_index(size_t index) {
+        _index = index;
+    }
     
-    bool is_null() const {
+    [[nodiscard]] bool is_null() const {
         return _is_null;
+    }
+
+    Interface* get_null_interface() const {
+        for(auto& inf : _interfaces){
+            if(inf->target()->is_null()) {
+                return inf.get();
+            }
+        }
+        return nullptr;
     }
     
     void add_name(const std::string& name);
     void change_name(const std::string& name);
-    const std::string& name() const;
-    const std::vector<std::string>& names() const { return _names; }
+    [[nodiscard]] const std::string& name() const;
+    [[nodiscard]] const std::vector<std::string>& names() const { return _names; }
 
     void print_dot(std::ostream& out);
-    const std::vector<std::unique_ptr<Interface>>& interfaces() const { return _interfaces; }
+    [[nodiscard]] const std::vector<std::unique_ptr<Interface>>& interfaces() const { return _interfaces; }
     void remove_interface(Interface* interface);
     Interface* find_interface(std::string iface);
     Interface* get_interface(std::vector<const Interface*>& all_interfaces, std::string iface, Router* expected = nullptr);
-    Interface* interface_no(size_t i) const {
+    [[nodiscard]] Interface* interface_no(size_t i) const {
         return _interfaces[i].get();
     }
     std::unique_ptr<char[] > interface_name(size_t i);
     void pair_interfaces(std::vector<const Interface*>&, std::function<bool(const Interface*, const Interface*)> matcher);
     static void add_null_router(std::vector<std::unique_ptr<Router>>& routers, std::vector<const Interface*>& all_interfaces, ptrie::map<char, Router*>& mapping);
     void print_simple(std::ostream& s);
+    [[nodiscard]] std::optional<Coordinate> coordinate() const { return _coordinate; }
 private:
     size_t _index = std::numeric_limits<size_t>::max();
     std::vector<std::string> _names;
@@ -120,6 +143,7 @@ private:
     size_t _inamelength = 0; // for printing
     bool _has_config = false;
     bool _is_null = false;
+    std::optional<Coordinate> _coordinate = std::nullopt;
     friend class Interface;
 };
 }

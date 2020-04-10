@@ -33,8 +33,8 @@ if (AALWINES_GetDependencies)
     
     ExternalProject_add(ptrie-ext
         GIT_REPOSITORY git@github.com:petergjoel/ptrie.git
-        #GIT_TAG f2218918f6b2fba2ff6ecf51a977694c525c8229  # Working TAG
-        GIT_TAG 9bc665e13a034d88b10de39aed6223075c6f77bd # Exploding TAG
+        #GIT_TAG 80afa1c7488a5961cd6f6d6a48bda6a212a390ae
+        GIT_TAG f2218918f6b2fba2ff6ecf51a977694c525c8229
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
     )
     file(MAKE_DIRECTORY ${EXTERNAL_INSTALL_LOCATION}/include)
@@ -47,10 +47,10 @@ if (AALWINES_GetDependencies)
     )
 
     ExternalProject_add(pdaaal-ext
-        GIT_REPOSITORY git@github.com:DEIS-Tools/PDAAAL.git
-        GIT_TAG 3c2b99eb27926e774887e7d970d4a3e931bee4b7
-        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
-        )
+        URL https://github.com/DEIS-Tools/PDAAAL/archive/v0.2.zip
+        URL_HASH SHA512=320b2b06206d471dfb416076f420dfa8a87667d59bc859a573d8120705f05035d113e6ca7906ea9951c2130a2a9c62391a3d498298c9a8d5416fec430b527e7e
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION} -DPDAAAL_BuildTests=OFF -DCMAKE_BUILD_TYPE=Release
+    )
 
     # we can now include external libraries
     include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
@@ -72,4 +72,5 @@ if(BUILD_TESTING AND AALWINES_BuildTests)
     add_subdirectory(${CMAKE_SOURCE_DIR}/test/)
     enable_testing()
     add_test(NAME SyntacticNetwork    COMMAND SyntacticNetwork)
+    add_test(NAME FastRerouting       COMMAND FastRerouting)
 endif()
